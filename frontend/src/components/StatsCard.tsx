@@ -1,19 +1,15 @@
 'use client';
 
 import type { AgentStats } from '@/types';
+import { calculateSuccessRate, formatAvgReviewScore } from '@/lib/utils';
 
 interface StatsCardProps {
   stats: AgentStats;
 }
 
 export function StatsCard({ stats }: StatsCardProps) {
-  const successRate = stats.totalTasks > 0
-    ? Math.round((stats.successfulTasks / stats.totalTasks) * 100)
-    : 0;
-
-  const avgReviewScore = stats.totalTasks > 0
-    ? (stats.totalReviewScore / stats.totalTasks).toFixed(1)
-    : '0.0';
+  const successRate = calculateSuccessRate(stats);
+  const avgReviewScore = formatAvgReviewScore(stats);
 
   return (
     <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">

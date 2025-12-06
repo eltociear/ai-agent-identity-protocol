@@ -1,5 +1,8 @@
-// Frontend type definitions
+/**
+ * AAIP Frontend Types
+ */
 
+// Core Agent Types
 export interface Agent {
   agentId: string;
   owner: string;
@@ -32,6 +35,7 @@ export interface AgentStats {
   lastActivity: number;
 }
 
+// Tier System
 export type Tier = 'Bronze' | 'Silver' | 'Gold';
 
 export interface ScoreResult {
@@ -45,6 +49,7 @@ export interface AgentWithScore {
   score: ScoreResult | null;
 }
 
+// API Response Types
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;

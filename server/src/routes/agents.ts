@@ -9,7 +9,8 @@ import {
   getAchievementsByAgent,
 } from '../services/starknet.js';
 import { calculateScoreResult, calculateAvgReviewScore } from '../services/score.js';
-import type { ApiResponse, ScoreResult } from '../types/index.js';
+import { successResponse, errors } from '../utils/response.js';
+import type { ScoreResult } from '../types/index.js';
 
 const agents = new Hono();
 
@@ -18,16 +19,10 @@ agents.get('/', async (c) => {
   const count = await getAgentCount();
 
   if (count === null) {
-    return c.json<ApiResponse<null>>({
-      success: false,
-      error: 'Failed to fetch agent count',
-    }, 500);
+    return errors.serverError(c, 'Failed to fetch agent count');
   }
 
-  return c.json<ApiResponse<{ count: number }>>({
-    success: true,
-    data: { count },
-  });
+  return successResponse(c, { count });
 });
 
 // GET /api/agents/:id - Get agent details with score
@@ -36,10 +31,7 @@ agents.get('/:id', async (c) => {
 
   const agent = await getAgent(agentId);
   if (!agent) {
-    return c.json<ApiResponse<null>>({
-      success: false,
-      error: 'Agent not found',
-    }, 404);
+    return errors.notFound(c, 'Agent');
   }
 
   // Get stats and calculate score
@@ -58,18 +50,7 @@ agents.get('/:id', async (c) => {
     });
   }
 
-  return c.json<ApiResponse<{
-    agent: typeof agent;
-    stats: typeof stats;
-    score: ScoreResult | null;
-  }>>({
-    success: true,
-    data: {
-      agent,
-      stats,
-      score: scoreResult,
-    },
-  });
+  return successResponse(c, { agent, stats, score: scoreResult });
 });
 
 // GET /api/agents/:id/achievements - Get agent achievements
@@ -80,29 +61,16 @@ agents.get('/:id/achievements', async (c) => {
 
   // Validate pagination params
   if (isNaN(offset) || offset < 0) {
-    return c.json<ApiResponse<null>>({
-      success: false,
-      error: 'Invalid offset',
-    }, 400);
+    return errors.badRequest(c, 'Invalid offset');
   }
 
   if (isNaN(limit) || limit < 1 || limit > 100) {
-    return c.json<ApiResponse<null>>({
-      success: false,
-      error: 'Invalid limit (must be 1-100)',
-    }, 400);
+    return errors.badRequest(c, 'Invalid limit (must be 1-100)');
   }
 
   const achievements = await getAchievementsByAgent(agentId, offset, limit);
 
-  return c.json<ApiResponse<{ achievements: typeof achievements; offset: number; limit: number }>>({
-    success: true,
-    data: {
-      achievements,
-      offset,
-      limit,
-    },
-  });
+  return successResponse(c, { achievements, offset, limit });
 });
 
 // GET /api/agents/by-repo/:owner/:repo - Get agent by GitHub repo
@@ -113,10 +81,7 @@ agents.get('/by-repo/:owner/:repo', async (c) => {
 
   const agentId = await getAgentByRepo(repoString);
   if (!agentId) {
-    return c.json<ApiResponse<null>>({
-      success: false,
-      error: 'No agent registered for this repository',
-    }, 404);
+    return errors.notFound(c, 'Agent for this repository');
   }
 
   // Redirect to agent details

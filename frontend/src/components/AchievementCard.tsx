@@ -1,27 +1,26 @@
 'use client';
 
 import type { Achievement } from '@/types';
+import { formatDate } from '@/lib/utils';
 
 interface AchievementCardProps {
   achievement: Achievement;
 }
 
-function formatTimestamp(timestamp: number): string {
-  const date = new Date(timestamp * 1000);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
+const TASK_LABELS: Record<string, string> = {
+  github_pr_merged: 'PR Merged',
+  github_issue_closed: 'Issue Closed',
+  github_review: 'Code Review',
+  code_review: 'Code Review',
+  bug_fix: 'Bug Fix',
+  feature: 'Feature',
+  refactor: 'Refactor',
+  docs: 'Documentation',
+  test: 'Testing',
+};
 
 function getTaskTypeLabel(taskType: string): string {
-  const labels: Record<string, string> = {
-    github_pr_merged: 'PR Merged',
-    github_issue_closed: 'Issue Closed',
-    github_review: 'Code Review',
-  };
-  return labels[taskType] || taskType;
+  return TASK_LABELS[taskType] || taskType;
 }
 
 export function AchievementCard({ achievement }: AchievementCardProps) {
@@ -37,7 +36,7 @@ export function AchievementCard({ achievement }: AchievementCardProps) {
               {getTaskTypeLabel(achievement.taskType)}
             </h3>
             <p className="text-sm text-gray-400">
-              {achievement.source} • {formatTimestamp(achievement.timestamp)}
+              {achievement.source} • {formatDate(achievement.timestamp)}
             </p>
           </div>
         </div>
