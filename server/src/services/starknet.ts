@@ -1,5 +1,5 @@
 // Starknet Contract Service
-import { RpcProvider, Account, Contract, cairo } from 'starknet';
+import { RpcProvider, Account, Contract, cairo, BlockTag } from 'starknet';
 import { config } from '../utils/config.js';
 import type { Agent, Achievement, AgentStats } from '../types/index.js';
 
@@ -100,7 +100,11 @@ let achievementRegistryContract: Contract | null = null;
  */
 export function initStarknet(): { provider: RpcProvider; account: Account | null } {
   if (!provider) {
-    provider = new RpcProvider({ nodeUrl: config.starknetRpcUrl });
+    provider = new RpcProvider({
+      nodeUrl: config.starknetRpcUrl,
+      // Use 'latest' instead of 'pending' for devnet compatibility
+      blockIdentifier: BlockTag.LATEST,
+    });
   }
 
   if (!account && config.serverPrivateKey && config.agentRegistryAddress) {
