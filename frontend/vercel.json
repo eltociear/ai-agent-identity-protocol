@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@aaip-api-url",
+    "NEXT_PUBLIC_AGENT_REGISTRY_ADDRESS": "@aaip-agent-registry",
+    "NEXT_PUBLIC_ACHIEVEMENT_REGISTRY_ADDRESS": "@aaip-achievement-registry"
+  }
+}
