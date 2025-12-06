@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  contracts:
+    name: Contracts (Cairo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Scarb
+        uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: "2.9.2"
+
+      - name: Setup Starknet Foundry
+        uses: foundry-rs/setup-snfoundry@v3
+        with:
+          starknet-foundry-version: "0.34.0"
+
+      - name: Build contracts
+        run: |
+          cd contracts
+          scarb build
+
+      - name: Run tests
+        run: |
+          cd contracts
+          snforge test
+
+  server:
+    name: Server (Node.js)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd server
+          npm ci
+
+      - name: Type check
+        run: |
+          cd server
+          npm run build
+
+      - name: Lint
+        run: |
+          cd server
+          npm run lint
+
+      - name: Run tests
+        run: |
+          cd server
+          npm test
+
+  frontend:
+    name: Frontend (Next.js)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci --legacy-peer-deps
+
+      - name: Lint
+        run: |
+          cd frontend
+          npm run lint
+
+      - name: Build
+        run: |
+          cd frontend
+          npm run build
